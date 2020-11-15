@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 const router = require('express').Router();
 
 const Users = require('../users/users-model');
-const { isValid } = require('../users/users-service');
 
 // pull in the secret we'll use to make the JWT
 const { jwtSecret } = require('./secrets.js');
@@ -13,7 +12,7 @@ router.post('/register', async (req, res) => {
   try {
     const { username, password } = req.body;
     const hash = bcrypt.hashSync(password, 10);
-    const user = { username, password: hash, role: 2 };
+    const user = { username, password: hash };
     const addedUser = await Users.add(user);
     res.json(addedUser);
   } catch (err) {
@@ -39,7 +38,6 @@ function makeToken(user) {
   const payload = {
     subject: user.id,
     username: user.username,
-    role: user.role,
   };
   const options = {
     expiresIn: '45 seconds',
