@@ -10,9 +10,9 @@ const { unsubscribe } = require('../api/server');
 
 router.post('/register', async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { email, username, password } = req.body;
     const hash = bcrypt.hashSync(password, 10);
-    const user = { username, password: hash };
+    const user = { email, username, password: hash };
     const addedUser = await Users.add(user);
     res.json(addedUser);
   } catch (err) {
