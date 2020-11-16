@@ -34,6 +34,14 @@ router.post('/login', async (req, res) => {
   }
 });
 
+router.get('/users', (req, res, next) => {
+  Users.find()
+    .then((users) => {
+      res.status(200).json(users);
+    })
+    .catch((error) => next(error));
+});
+
 function makeToken(user) {
   const payload = {
     subject: user.id,
