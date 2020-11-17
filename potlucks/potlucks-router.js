@@ -5,10 +5,10 @@ const db = require('../data/db-config');
 const Potlucks = require('./potlucks-model');
 const restricted = require('../auth/restricted-middleware');
 
-router.post('/potlucks', (req, res) => {
+router.post('/potlucks', restricted, (req, res) => {
   const newPotluck = req.body;
 
-  Tables.addResource(newPotluck)
+  Tables.add(newPotluck)
     .then((potluck) => {
       res.status(201).json(potluck);
     })
