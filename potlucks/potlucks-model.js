@@ -5,6 +5,7 @@ module.exports = {
   find,
   findBy,
   findById,
+  addAPotluck,
 };
 
 function find() {
@@ -27,4 +28,19 @@ async function add(user) {
 
 function findById(id) {
   return db('potlucks').where({ id }).first();
+}
+
+function addAPotluck(id) {
+  return db('potlucks as p')
+    .join('users as u', 'p.potluck_organizer as organzier_id', 'u.id')
+    .join('food_items as f', 'f.potluck', 'p.id')
+    .select(
+      'u.username as user',
+      'p.potluck_name',
+      'p.date',
+      'p.time',
+      'p.location',
+      'f.food_name'
+    )
+    .where({ 'p.id': id });
 }

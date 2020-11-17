@@ -8,6 +8,7 @@ const Users = require('../users/users-model');
 const { jwtSecret } = require('./secrets.js');
 const { unsubscribe } = require('../api/server');
 
+//register a new user with email, username, & password. then respond to client with addedUser for confirmation
 router.post('/register', async (req, res) => {
   try {
     const { email, username, password } = req.body;
@@ -20,6 +21,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
+//login a new user with username & password. then respond to client with logged in message and send back a token for client to store in local storage.
 router.post('/login', async (req, res) => {
   try {
     const [user] = await Users.findBy({ username: req.body.username });
@@ -34,6 +36,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
+//test for sanity purpose. can get users to check that the user exists in the db.
 router.get('/users', (req, res, next) => {
   Users.find()
     .then((users) => {
@@ -42,6 +45,7 @@ router.get('/users', (req, res, next) => {
     .catch((error) => next(error));
 });
 
+//make token that will be used by client to access resticted data from db.
 function makeToken(user) {
   const payload = {
     subject: user.id,
