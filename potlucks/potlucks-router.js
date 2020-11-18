@@ -51,7 +51,7 @@ router.post('/potluck', restricted, (req, res) => {
 });
 
 //get a specific potluck
-router.get('/potlucks/:id', restricted, (req, res) => {
+router.get('/potluck/:id', restricted, (req, res) => {
   Potlucks.getAPotluck(req.params.id)
     .then((potluck) => {
       if (potluck.length) {

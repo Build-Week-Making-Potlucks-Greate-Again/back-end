@@ -12,9 +12,9 @@ const { unsubscribe } = require('../api/server');
 //TODO ADD FIRST NAME LAST NAME TO REGISTER
 router.post('/register', async (req, res) => {
   try {
-    const { email, username, passwoxrd } = req.body;
+    const { first_name, last_name, email, username, password } = req.body;
     const hash = bcrypt.hashSync(password, 10);
-    const user = { email, username, password: hash };
+    const user = { first_name, last_name, email, username, password: hash };
     const addedUser = await Users.add(user);
     res.status(201).json(addedUser);
   } catch (err) {
