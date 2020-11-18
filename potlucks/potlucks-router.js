@@ -5,7 +5,7 @@ const db = require('../data/db-config');
 const Potlucks = require('./potlucks-model');
 const restricted = require('../auth/restricted-middleware');
 
-//post a potluck, will have to add users and items in 2 other posts
+//post a potluck, with guests and food items
 router.post('/potluck', restricted, (req, res) => {
   const {
     potluck_name,
@@ -54,10 +54,11 @@ router.post('/potluck', restricted, (req, res) => {
 router.get('/potluck/:id', restricted, (req, res) => {
   Potlucks.getAPotluck(req.params.id)
     .then((potluck) => {
-      if (potluck.length) {
+      if (potluck) {
         res.status(200).json(potluck);
       } else {
         res.status(404).json({ message: 'no potluck for that id' });
+        console.log(potluck);
       }
     })
     .catch((err) => res.json({ message: err.message }));
@@ -68,6 +69,15 @@ router.get('/potlucks', restricted, (req, res) => {
   Potlucks.getAllPotlucks()
     .then((data) => {
       res.status(200).json(data);
+    })
+    .catch((err) => res.json({ message: err.message }));
+});
+
+//get all foods for a potluck (tester)
+router.get('/potluck/foods/:id', restricted, (req, res) => {
+  Potlucks.getallFoodsForAPotluck(req.params.id)
+    .then((foods) => {
+      res.status(200).json(foods);
     })
     .catch((err) => res.json({ message: err.message }));
 });
