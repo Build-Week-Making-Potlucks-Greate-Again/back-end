@@ -9,9 +9,10 @@ const { jwtSecret } = require('./secrets.js');
 const { unsubscribe } = require('../api/server');
 
 //register a new user with email, username, & password. then respond to client with addedUser for confirmation
+//TODO ADD FIRST NAME LAST NAME TO REGISTER
 router.post('/register', async (req, res) => {
   try {
-    const { email, username, password } = req.body;
+    const { email, username, passwoxrd } = req.body;
     const hash = bcrypt.hashSync(password, 10);
     const user = { email, username, password: hash };
     const addedUser = await Users.add(user);
@@ -52,7 +53,7 @@ function makeToken(user) {
     username: user.username,
   };
   const options = {
-    expiresIn: '45 seconds',
+    expiresIn: '1 hour',
   };
   return jwt.sign(payload, jwtSecret, options);
 }
