@@ -9,6 +9,8 @@ module.exports = {
   getAllPotlucks,
   getallFoodsForAPotluck,
 };
+//-----------------------------------------------------------
+//ADDING A POTLUCK:
 
 //this associates all of my guests with one potluck
 async function createGuestList(guestList, potluckId) {
@@ -29,7 +31,6 @@ async function createFoodList(foodItems, potluckId) {
       // console.log(food);
       return {
         food_name: food,
-
         potluck: potluckId,
       };
     })
@@ -47,14 +48,17 @@ async function createPotluckWithGuestsAndFoodItems(
   createFoodList(foodItems, id);
   //now that we have a potluck we can associate any number of guest ids in this potluck by creating guest id, potluck id associations
   createGuestList(guestList, id);
-  return { newPotluck, guestList, foodItems };
+  return { newPotluck, foodItems, guestList };
 }
 
 //----------------------------------------------------------------
+//GETTING A SPECIFIC POTLUCK WITH ID PARAM
 
 //this gets all foods that pertain to a specific potluck
 async function getallFoodsForAPotluck(id) {
-  return db('food_items as f').select('f.food_name').where({ 'f.potluck': id });
+  return db('food_items as f')
+    .select('f.food_name', 'f.selected?', 'f.selected_by')
+    .where({ 'f.potluck': id });
 }
 
 // this gets all users that pertain to a specific potluck
@@ -79,30 +83,60 @@ async function getAPotluck(id) {
     .where({ 'p.id': id });
   const foodInfo = await getallFoodsForAPotluck(id);
   const guestsInfo = await getAllGuestsForAPotluck(id);
-  console.log('food info:', foodInfo);
-  console.log('potluck info:', potluckInfo);
+
   return { potluckInfo, foodInfo, guestsInfo };
 }
 
 //------------------------------------------------------------------
+//GETTING ALL OF THE POTLUCKS
 
-//this gets all of the polucks in the db
-function getAllPotlucks() {
-  return db('potlucks as p')
+//
+
+async function asyncForEach(array, callback) {
+  for (let index = 0; index < array.length; index++) {
+    await callback(array[index], array[index].id);
+  }
+}
+
+// Iterates over collection
+// Return void
+const startAsyncOperation = async (collection, dbCallBack, table) => {
+  await asyncForEach(collection, async (potluck) => {
+    if (table === 'potluck_guests') {
+      potluck.guestList = await dbCallBack(potluck.id);
+    } else if (table === 'food_items') {
+      potluck.foodList = await dbCallBack(potluck.id);
+    }
+  });
+  console.log('Done');
+};
+
+// this gets all of the polucks in the db
+async function getAllPotlucks() {
+  let allPotlucks = await db('potlucks as p')
     .join('users as u', 'p.potluck_organizer', 'u.id')
-    .join('food_items as f', 'f.potluck', 'p.id')
-    .join('potluck_guests as pg', 'pg.potluck_id', 'p.id')
     .select(
       'u.username as organizer',
-      'p.id',
       'p.potluck_name',
+      'p.id',
       'p.date',
       'p.time',
-      'p.location',
-      'f.food_name',
-      'pg.guest_id'
-    );
+      'p.location'
+    )
+    .orderBy('p.id');
+  //iterate over all potlucks appending food items and guestsList to eack potluck
+  await startAsyncOperation(allPotlucks, getallFoodsForAPotluck, 'food_items');
+  await startAsyncOperation(
+    allPotlucks,
+    getAllGuestsForAPotluck,
+    'potluck_guests'
+  );
+
+  return { allPotlucks };
 }
+
+//---------------------------------------------------------------------
+//UPDATE A GIVEN POTLUCK WITH ID
 
 // function find() {
 //   return db('potlucks').select('id', 'potluck_name').orderBy('id');
