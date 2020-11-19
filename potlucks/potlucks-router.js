@@ -73,15 +73,17 @@ router.get('/potlucks', restricted, (req, res) => {
     .catch((err) => res.json({ message: err.message }));
 });
 
-//get all foods for a potluck (tester for getallFoodsForAPotluck)
-router.get('/potluck/foods/:id', restricted, (req, res) => {
-  console.log(req.params.id);
-  Potlucks.getallFoodsForAPotluck(req.params.id)
+//edit a potluck
 
-    .then((foods) => {
-      res.status(200).json(foods);
-    })
-    .catch((err) => res.json({ message: err.message }));
-});
+//get all foods for a potluck (tester for getallFoodsForAPotluck)
+// router.get('/potluck/foods/:id', restricted, (req, res) => {
+//   console.log(req.params.id);
+//   Potlucks.getallFoodsForAPotluck(req.params.id)
+
+//     .then((foods) => {
+//       res.status(200).json(foods);
+//     })
+//     .catch((err) => res.json({ message: err.message }));
+// });
 
 module.exports = router;

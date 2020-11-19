@@ -9,7 +9,6 @@ const { jwtSecret } = require('./secrets.js');
 const { unsubscribe } = require('../api/server');
 
 //register a new user with email, username, & password. then respond to client with addedUser for confirmation
-//TODO ADD FIRST NAME LAST NAME TO REGISTER
 router.post('/register', async (req, res) => {
   try {
     const { first_name, last_name, email, username, password } = req.body;
@@ -53,7 +52,7 @@ function makeToken(user) {
     username: user.username,
   };
   const options = {
-    expiresIn: '1 hour',
+    expiresIn: '5 hour',
   };
   return jwt.sign(payload, jwtSecret, options);
 }
