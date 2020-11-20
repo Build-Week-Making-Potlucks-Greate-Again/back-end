@@ -73,17 +73,54 @@ router.get('/potlucks', restricted, (req, res) => {
     .catch((err) => res.json({ message: err.message }));
 });
 
-//edit a potluck
+// edit a potluck
 
-//get all foods for a potluck (tester for getallFoodsForAPotluck)
-// router.get('/potluck/foods/:id', restricted, (req, res) => {
-//   console.log(req.params.id);
-//   Potlucks.getallFoodsForAPotluck(req.params.id)
+router.put('/potluck/:id', restricted, (req, res) => {
+  const { id } = req.params.id;
+  const {
+    potluck_name,
+    date,
+    time,
+    location,
+    potluck_organizer,
+    guest_list,
+    food_items,
+  } = req.body;
 
-//     .then((foods) => {
-//       res.status(200).json(foods);
-//     })
-//     .catch((err) => res.json({ message: err.message }));
-// });
+  if (
+    !potluck_name ||
+    !date ||
+    !time ||
+    !location ||
+    !potluck_organizer ||
+    guest_list.length <= 0 ||
+    food_items.length <= 0
+  ) {
+    res.status(400).json({ message: 'dont have all req info' });
+  } else {
+    const updatedPotluck = {
+      potluck_name,
+      date,
+      time,
+      location,
+      potluck_organizer,
+    };
+    Potlucks.updatePotluckWithGuestsAndFoodItems(
+      req.params.id,
+      updatedPotluck,
+      guest_list,
+      food_items
+    )
+      .then((potluck) => {
+        res.status(201).json(potluck);
+      })
+      .catch((err) => {
+        // res.status(500).json({ message: 'Failed to create new potluck' });
+        res.status(500).json({ message: err.message });
+      });
+  }
+});
+
+//-----------------------
 
 module.exports = router;

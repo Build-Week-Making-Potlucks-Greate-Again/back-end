@@ -2,12 +2,10 @@ const db = require('../data/db-config');
 
 module.exports = {
   createPotluckWithGuestsAndFoodItems,
-  // find,
-  // findBy,
-  // findById,
   getAPotluck,
   getAllPotlucks,
   getallFoodsForAPotluck,
+  updatePotluckWithGuestsAndFoodItems,
 };
 //-----------------------------------------------------------
 //ADDING A POTLUCK:
@@ -25,7 +23,7 @@ async function createGuestList(guestList, potluckId) {
 }
 
 //this associates all of my food items with one potluck
-async function createFoodList(foodItems, potluckId) {
+async function updateFoodList(foodItems, potluckId) {
   await db('food_items').insert(
     foodItems.map((food) => {
       // console.log(food);
@@ -45,7 +43,7 @@ async function createPotluckWithGuestsAndFoodItems(
 ) {
   const [id] = await db('potlucks').insert(newPotluck);
   //now that we have a potluck we can associate any number of food items in this potluck by creating food id, potluck id associations
-  createFoodList(foodItems, id);
+  updateFoodList(foodItems, id);
   //now that we have a potluck we can associate any number of guest ids in this potluck by creating guest id, potluck id associations
   createGuestList(guestList, id);
   return { newPotluck, foodItems, guestList };
@@ -89,8 +87,6 @@ async function getAPotluck(id) {
 
 //------------------------------------------------------------------
 //GETTING ALL OF THE POTLUCKS
-
-//
 
 async function asyncForEach(array, callback) {
   for (let index = 0; index < array.length; index++) {
@@ -137,6 +133,40 @@ async function getAllPotlucks() {
 
 //---------------------------------------------------------------------
 //UPDATE A GIVEN POTLUCK WITH ID
+async function updateGuestList(id, guestList, potluckId) {
+  guestList.forEach((guest) => {
+    db('potluck_guests').where({ id }).update({
+      guest_id: guest,
+      potluck_id: potluckId,
+    });
+  });
+}
+//this associates all of my food items with one potluck
+async function updateFoodList(id, foodList, potluckId) {
+  foodList.forEach((food) => {
+    db('food_items').where({ id }).update({
+      food_name: food,
+      potluck: potluckId,
+    });
+  });
+}
+
+//this adds a potluck and adds users, foods to their own tables
+async function updatePotluckWithGuestsAndFoodItems(
+  id,
+  updatedPotluck,
+  guestList,
+  foodItems
+) {
+  await db('potlucks').update(updatedPotluck);
+  //now that we have a potluck we can associate any number of food items in this potluck by creating food id, potluck id associations
+  updateFoodList(foodItems, id);
+  //now that we have a potluck we can associate any number of guest ids in this potluck by creating guest id, potluck id associations
+  updateGuestList(guestList, id);
+  return { updatedPotluck, foodItems, guestList };
+}
+
+//-------------------------------------
 
 // function find() {
 //   return db('potlucks').select('id', 'potluck_name').orderBy('id');
