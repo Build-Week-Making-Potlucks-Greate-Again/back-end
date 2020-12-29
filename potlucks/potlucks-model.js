@@ -23,7 +23,7 @@ async function createGuestList(guestList, potluckId) {
 }
 
 //this associates all of my food items with one potluck
-async function updateFoodList(foodItems, potluckId) {
+async function createFoodList(foodItems, potluckId) {
   await db('food_items').insert(
     foodItems.map((food) => {
       // console.log(food);
@@ -43,7 +43,7 @@ async function createPotluckWithGuestsAndFoodItems(
 ) {
   const [id] = await db('potlucks').insert(newPotluck);
   //now that we have a potluck we can associate any number of food items in this potluck by creating food id, potluck id associations
-  updateFoodList(foodItems, id);
+  createFoodList(foodItems, id);
   //now that we have a potluck we can associate any number of guest ids in this potluck by creating guest id, potluck id associations
   createGuestList(guestList, id);
   return { newPotluck, foodItems, guestList };
