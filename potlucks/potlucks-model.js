@@ -135,6 +135,11 @@ async function getAllPotlucks() {
 //UPDATE A GIVEN POTLUCK WITH ID
 // will need to check for duplicate rows, so no guests can be added to potluck twice
 // use .where({guest_id:guest, potluck_id:potluckId})
+
+
+/// We Will need a function to check for any deleted guests for the update///
+
+
 function updateGuestList(guestList, potluckId) {
   
   guestList.forEach( async (guest) => {
