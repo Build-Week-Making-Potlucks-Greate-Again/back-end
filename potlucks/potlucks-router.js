@@ -106,7 +106,7 @@ router.put('/potluck/:id', restricted, (req, res) => {
       potluck_organizer,
     };
     Potlucks.updatePotluckWithGuestsAndFoodItems(
-      req.params.id,
+      id,
       updatedPotluck,
       guest_list,
       food_items

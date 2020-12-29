@@ -133,21 +133,35 @@ async function getAllPotlucks() {
 
 //---------------------------------------------------------------------
 //UPDATE A GIVEN POTLUCK WITH ID
-async function updateGuestList(id, guestList, potluckId) {
-  guestList.forEach((guest) => {
-    db('potluck_guests').where({ id }).update({
-      guest_id: guest,
-      potluck_id: potluckId,
-    });
+// will need to check for duplicate rows, so no guests can be added to potluck twice
+// use .where({guest_id:guest, potluck_id:potluckId})
+function updateGuestList(guestList, potluckId) {
+  
+  guestList.forEach( async (guest) => {
+    try {
+      const guestExists = await db('potluck_guests').where({guest_id:guest, potluck_id:potluckId})
+      if(!guestExists[0]) {
+        db('potluck_guests').insert({
+          guest_id: guest,
+          potluck_id: potluckId,
+        });
+      } else {
+        console.log(`guest is already in potluck`)
+      }
+    } catch(err) {
+      console.log(err.message)
+    }
   });
 }
 //this associates all of my food items with one potluck
-async function updateFoodList(id, foodList, potluckId) {
+// updates the foodlist if it was selected, and who selected it
+async function updateFoodList(foodList, potluckId) {
   foodList.forEach((food) => {
-    db('food_items').where({ id }).update({
-      food_name: food,
-      potluck: potluckId,
-    });
+    const {food_name, selected_by} = food
+    db('food_items').where({food_name:food_name, potluck:potluckId}).update({
+      ['selected?']:food['selected?'],
+      selected_by:selected_by
+    })
   });
 }
 
