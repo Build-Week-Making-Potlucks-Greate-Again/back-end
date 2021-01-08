@@ -23,7 +23,7 @@ async function createGuestList(guestList, potluckId) {
 }
 
 //this associates all of my food items with one potluck
-async function updateFoodList(foodItems, potluckId) {
+async function createFoodList(foodItems, potluckId) {
   await db('food_items').insert(
     foodItems.map((food) => {
       // console.log(food);
@@ -43,7 +43,7 @@ async function createPotluckWithGuestsAndFoodItems(
 ) {
   const [id] = await db('potlucks').insert(newPotluck);
   //now that we have a potluck we can associate any number of food items in this potluck by creating food id, potluck id associations
-  updateFoodList(foodItems, id);
+  createFoodList(foodItems, id);
   //now that we have a potluck we can associate any number of guest ids in this potluck by creating guest id, potluck id associations
   createGuestList(guestList, id);
   return { newPotluck, foodItems, guestList };
@@ -133,21 +133,40 @@ async function getAllPotlucks() {
 
 //---------------------------------------------------------------------
 //UPDATE A GIVEN POTLUCK WITH ID
-async function updateGuestList(id, guestList, potluckId) {
-  guestList.forEach((guest) => {
-    db('potluck_guests').where({ id }).update({
-      guest_id: guest,
-      potluck_id: potluckId,
-    });
+// will need to check for duplicate rows, so no guests can be added to potluck twice
+// use .where({guest_id:guest, potluck_id:potluckId})
+
+
+/// We Will need a function to check for any deleted guests for the update///
+
+
+function updateGuestList(guestList, potluckId) {
+  
+  guestList.forEach( async (guest) => {
+    try {
+      const guestExists = await db('potluck_guests').where({guest_id:guest, potluck_id:potluckId})
+      if(!guestExists[0]) {
+        db('potluck_guests').insert({
+          guest_id: guest,
+          potluck_id: potluckId,
+        });
+      } else {
+        console.log(`guest is already in potluck`)
+      }
+    } catch(err) {
+      console.log(err.message)
+    }
   });
 }
 //this associates all of my food items with one potluck
-async function updateFoodList(id, foodList, potluckId) {
+// updates the foodlist if it was selected, and who selected it
+async function updateFoodList(foodList, potluckId) {
   foodList.forEach((food) => {
-    db('food_items').where({ id }).update({
-      food_name: food,
-      potluck: potluckId,
-    });
+    const {food_name, selected_by} = food
+    db('food_items').where({food_name:food_name, potluck:potluckId}).update({
+      ['selected?']:food['selected?'],
+      selected_by:selected_by
+    })
   });
 }
 
